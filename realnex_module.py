@@ -70,7 +70,13 @@ def get_contacts():
                     temp_list.append(data)
             page += 500  # Increment by 500 because we are fetching 10 pages in parallel
             
-    return pd.concat(temp_list)
+    # compiling pages into 1 dataframe
+    if len(temp_list) > 0:
+        temp_df = pd.concat(temp_list).reset_index(drop=True)
+    else:
+        temp_df = None
+    
+    return temp_df
 
 # %% [markdown]
 # ##### Testing get contact function
