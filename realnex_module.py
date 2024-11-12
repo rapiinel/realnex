@@ -310,6 +310,18 @@ def get_property_enriched_fields(property_key):
 
     return pd.DataFrame(dataframe_structure)
 
+#### Getting the properties linked to a contact
+def get_linked_properties(contact_key):
+    data = {
+        'length': '10',
+        'Key': contact_key
+        }
+    url = 'https://crm.realnex.com/api/v1/contact/LinksDataTable'
+
+    response = scraper.post(url, headers=headers, data=data)
+    
+    return response.json()
+
 
 
 def test_function():
