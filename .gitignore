@@ -1,3 +1,5 @@
 *.Identifier
 *.identifier
 .venv
+.env
+config.json
