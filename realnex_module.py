@@ -11,8 +11,13 @@ import numpy as np
 import os
 import json
 import warnings
+from datetime import datetime, timedelta
 
 warnings.filterwarnings('ignore')
+
+CACHE_FILE = "contacts.csv"
+CACHE_EXPIRY_HOURS = 0.5  # change this to how long you want cache to be valid
+
 
 with open('config.json') as config_file:
     config = json.load(config_file)
@@ -100,8 +105,38 @@ def get_properties():
             
     return pd.concat(temp_list, ignore_index=True)
 
-# %%
+
 def get_contacts():
+    # Check if cache exists
+    if os.path.exists(CACHE_FILE):
+        # Get last modified time
+        last_modified = datetime.fromtimestamp(os.path.getmtime(CACHE_FILE))
+        age = datetime.now() - last_modified
+
+        if age < timedelta(hours=CACHE_EXPIRY_HOURS):
+            print("✅ Using cached contacts from CSV")
+            return pd.read_csv(CACHE_FILE)
+        else:
+            print("⚠️ Cache expired. Refreshing contacts...")
+    else:
+        print("📂 No cache found. Fetching contacts...")
+
+    # Run your function since cache is missing/expired
+    contacts = get_contacts_query()
+
+    # Save to CSV
+    if isinstance(contacts, pd.DataFrame):
+        contacts.to_csv(CACHE_FILE, index=False)
+    else:
+        # if it's a list of dicts, convert to DataFrame first
+        pd.DataFrame(contacts).to_csv(CACHE_FILE, index=False)
+
+    return pd.read_csv(CACHE_FILE)
+
+
+
+# %%
+def get_contacts_query():
     """
     Fetch contacts from the RealNex CRM API using multithreading for efficiency.
 
