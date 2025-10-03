@@ -12,6 +12,7 @@ import os
 import json
 import warnings
 from datetime import datetime, timedelta
+import ast
 
 warnings.filterwarnings('ignore')
 
@@ -115,7 +116,15 @@ def get_contacts():
 
         if age < timedelta(hours=CACHE_EXPIRY_HOURS):
             print("✅ Using cached contacts from CSV")
-            return pd.read_csv(CACHE_FILE)
+            contacts = pd.read_csv(CACHE_FILE)
+            for col in contacts.columns:
+                try:
+                    contacts[col] = contacts[col].apply(ast.literal_eval)
+                except (ValueError, SyntaxError):
+                    # Not a dict/list string, leave as is
+                    pass
+
+            return contacts
         else:
             print("⚠️ Cache expired. Refreshing contacts...")
     else:
