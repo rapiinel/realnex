@@ -131,7 +131,7 @@ def get_contacts():
         # if it's a list of dicts, convert to DataFrame first
         pd.DataFrame(contacts).to_csv(CACHE_FILE, index=False)
 
-    return pd.read_csv(CACHE_FILE)
+    return contacts
 
 
 
