@@ -90,23 +90,6 @@ def get_properties():
             
     return pd.concat(temp_list, ignore_index=True)
 
-    temp_list = []
-    page = 0
-    limit = 1  # Initialize limit to enter the while loop
-
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        while limit != 0:
-            future_to_page = {executor.submit(fetch_page, page): page for page in range(page, page + 500, 50)}
-            for future in concurrent.futures.as_completed(future_to_page):
-                data = future.result()
-                limit = len(data)
-                if limit > 0:
-                    temp_list.append(data)
-            page += 500  # Increment by 500 because we are fetching 10 pages in parallel
-            
-    return pd.concat(temp_list, ignore_index=True)
-
-
 def get_contacts():
     # Check if cache exists
     if os.path.exists(CACHE_FILE):
@@ -142,7 +125,16 @@ def get_contacts():
 
     return contacts
 
+def get_contact_detail(contact_key):
+    url = "https://crm.realnex.com/api/v1/contact/GetByKey/"
+    params = {
+        "key": contact_key,
+        "order": 0,
+    }
 
+    r = scraper.get(url, params=params, headers=headers)
+
+    return r.json()
 
 # %%
 def get_contacts_query():
