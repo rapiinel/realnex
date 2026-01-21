@@ -366,8 +366,39 @@ def test_function():
     print("11/9/2024 test 2")
 
 
+def get_update_contact(contact_id: str, updates: dict) -> object:
+    """
+    Fetch a contact, apply field updates, then post the updated payload back.
+
+    Example updates:
+        {
+            "WorkPhone": "+1 (832) 800-8355",
+            "Fax": "+1 (832) 800-8355",
+            "Mobile": "+1 (832) 800-8355",
+            "HomePhone": "+1 (832) 800-8355",
+            "Email": "navaluna.raffie@gmail.com",
+        }
+    """
+    url = f"https://crm.realnex.com/api/v1/contact/Edit?key={contact_id}"
+
+    # Get current contact data
+    get_resp = scraper.get(url, headers=headers)
+    get_resp.raise_for_status()
+
+    payload = get_resp.json().get("Data", {})
+    payload.update(updates)
+
+    # Post updated contact data
+    post_resp = scraper.post(url, headers=headers, data=payload)
+    post_resp.raise_for_status()
+
+    return post_resp
+
+
 
 # %%
 if __name__ == '__main__':
     property_df = get_properties()
     print(property_df.head())
+
+
