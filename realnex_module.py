@@ -366,7 +366,19 @@ def test_function():
     print("11/9/2024 test 2")
 
 
-def get_update_contact(contact_id: str, updates: dict) -> object:
+def flatten_collections(payload: dict, prefix: str = "Collections") -> dict:
+    out = {}
+    collections = payload.get("Collections") or []
+    for i, c in enumerate(collections):
+        for k in ("Type", "Key", "Description"):
+            if k in c and c[k] is not None:
+                out[f"{prefix}[{i}].{k}"] = str(c[k]).lower() if isinstance(c[k], bool) else str(c[k])
+
+        out[f"{prefix}[{i}].IsDeleted"] = "false"
+
+    return out
+
+def update_contact(contact_id: str, updates: dict) -> object:
     """
     Fetch a contact, apply field updates, then post the updated payload back.
 
@@ -387,6 +399,10 @@ def get_update_contact(contact_id: str, updates: dict) -> object:
 
     payload = get_resp.json().get("Data", {})
     payload.update(updates)
+
+    collections = flatten_collections(payload)
+    payload.update(collections)
+    payload.pop("Collections", None)
 
     # Post updated contact data
     post_resp = scraper.post(url, headers=headers, data=payload)
