@@ -331,7 +331,9 @@ def get_property_enriched_fields(property_key):
         'Market': [],
         'Appraised': [],
         'Year Build': [],
-        'Appraisal District Account Id':[]
+        'Appraisal District Account Id':[],
+        'Appraisal District Name':[],
+        'Appraisal District Mailing Address':[]
         }
 
     dataframe_structure['Key'].append(response.get('Key', np.nan))
@@ -345,6 +347,8 @@ def get_property_enriched_fields(property_key):
     dataframe_structure['Appraised'].append(response.get('UserDataFields', np.nan).get('UserNumber11', np.nan))
     dataframe_structure['Year Build'].append(response.get('UserDataFields', np.nan).get('UserNumber12', np.nan))
     dataframe_structure['Appraisal District Account Id'].append(response.get('UserFields', np.nan).get('User14', np.nan))
+    dataframe_structure['Appraisal District Name'].append(response.get('UserFields', np.nan).get('User15', np.nan))
+    dataframe_structure['Appraisal District Mailing Address'].append(response.get('UserFields', np.nan).get('User16', np.nan))
 
     return pd.DataFrame(dataframe_structure)
 
