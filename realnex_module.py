@@ -320,6 +320,7 @@ def get_property_enriched_fields(property_key):
     response = requests.get(url, headers=headers, params=params).json()['Data']
 
     # print(response)
+
     dataframe_structure = {
         'Key' : [],
         'State Class' : [],
@@ -414,6 +415,74 @@ def update_contact(contact_id: str, updates: dict) -> object:
 
     return post_resp
 
+def create_tag(tag_name: str) -> object:
+    """
+    Create a new tag in the RealNex CRM.
+
+    Args:
+        tag_name (str): The name of the tag to be created.
+
+    Returns:
+        response (requests.Response): The response from the RealNex API after creating the tag.
+    """
+    edit_key = scraper.get("https://crm.realnex.com/api/v1/collection/Edit?key=", headers=headers)
+    print("-----------------------")
+    print(edit_key)
+    print(edit_key.json())
+    print("-----------------------")
+
+    url = f"https://crm.realnex.com/api/v1/collection/edit?validateOnly=false"
+    data = {
+        "Key": edit_key.json()['Data']['Key'],
+        "Name": tag_name,
+        "Type": "0",
+        "TextColor": "",
+        "BackgroundColor": "",
+        "OwnerId": "068928ff-e9db-44a0-9e09-ffd8b12131c8",
+        "GroupId": "",
+    }
+    response = scraper.post(url, headers=headers, json=data)
+    print(response)
+    print(response.json())
+    return response
+
+
+
+
+def add_tag(contact_id: str, tag_name: str, memberType: str) -> object:
+    """
+    Add a tag to a contact.
+
+    Args:
+        contact_id (str): The unique identifier for the contact.
+        tag_name (str): The name of the tag to be added.
+        memberType (str): The type of the member.
+
+    Returns:
+        response (requests.Response): The response from the RealNex API after adding the tag.
+    """
+    url = f"https://crm.realnex.com/api/v1/Collection/AddMember"
+    data = {
+        "collectionKey": tag_name,
+        "memberKey": contact_id,
+        "memberType":memberType
+    }
+    response = scraper.post(url, headers=headers, json=data)
+    # print(response)
+    # print(response.json())
+    return response
+
+def get_tags():
+    url = "https://crm.realnex.com/api/v1/Collection/GetSearchList?PageIndex=1&PageSize=50&Order=2&Type=&searchName="
+    response = scraper.get(url, headers=headers)
+
+    # print("status:", response.status_code)
+    # print("content-type:", response.headers.get("Content-Type"))
+    # print("text preview:", response.text[:500])
+
+    response.raise_for_status()
+    data = response.json()
+    return pd.DataFrame(data['Data']['list'])
 
 
 # %%
